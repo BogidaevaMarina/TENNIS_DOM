@@ -1,19 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TENNIS_DOM</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div id="field">
-    <div id="ball"></div>
-    <div id="leftPaddle"></div>
-    <div id="rightPaddle"></div>
-  </div>
-  <button id="startButton">Start!</button>
-  <div id="score">0:0</div>
-  <script src="script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis Game</title>
+    <style>
+    #container {
+      display: flex;
+      width: 600px;
+      margin: 20px auto;
+      align-items: center; 
+      justify-content: space-between; 
+    }
+
+    #field {
+      width: 600px;
+      height: 400px;
+      position: relative;
+      border: 2px solid black; 
+      background-color: rgb(248, 248, 153); 
+      margin: 20px auto;
+    }
+
+    #ball {
+      width: 40px; 
+      height: 40px; 
+      background-color: red;
+      border-radius: 50%;
+      position: absolute;
+      left: 280px; 
+      top: 180px; 
+    }
+
+    #leftPaddle, #rightPaddle {
+      width: 10px;
+      height: 80px;
+      position: absolute;
+    }
+
+    #leftPaddle {
+      left: 0;
+      background-color: green; 
+    }
+
+    #rightPaddle {
+      right: 0;
+      background-color: blue; 
+    }
+
+   
+    #score {
+      font-size: 32px;
+      flex: 1; 
+      text-align: center;
+      margin-left: -52px;
+    }
+
+  </style>
+  </head>
+  <body>
+    <div id="container">
+      <button id="startButton">Старт!</button>
+      <div id="score">0:0</div>
+    </div>
+    <div id="field">
+      <div id="ball"></div>
+      <div id="leftPaddle"></div>
+      <div id="rightPaddle"></div>
+    </div>
+
+    <script>
+    "use strict";
+    document.addEventListener("DOMContentLoaded", function () {
+      const field = document.getElementById("field");
+      const ball = document.getElementById("ball");
+      const leftPaddle = document.getElementById("leftPaddle");
+      const rightPaddle = document.getElementById("rightPaddle");
+      const startButton = document.getElementById("startButton");
+      const scoreElement = document.getElementById("score");
+
+      const fieldWidth = field.offsetWidth;
+      const fieldHeight = field.offsetHeight;
+      const ballSize = ball.offsetWidth;
+      const paddleHeight = leftPaddle.offsetHeight;
+      const paddleSpeed = 5;
+
+      let ballX = fieldWidth / 2 - ballSize / 2;
+      let ballY = fieldHeight / 2 - ballSize / 2;
+      let ballSpeedX = 1;
+      let ballSpeedY = 1;
+      let leftPaddleY = fieldHeight / 2 - paddleHeight / 2;
+      let rightPaddleY = fieldHeight / 2 - paddleHeight / 2;
+      let scoreLeft = 0;
+      let scoreRight = 0;
+      let gameInterval;
+
+      function update() {
+        
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+
+        if (ballY < 0 || ballY > fieldHeight - ballSize) {
+          ballSpeedY = -ballSpeedY;
+        }
+
+        if (
+          ballX <= 10 &&
+          ballY + ballSize >= leftPaddleY &&
+          ballY <= leftPaddleY + paddleHeight &&
+          ballX >= 0
+        ) {
+          ballSpeedX = Math.abs(ballSpeedX);
+          ballX = 10;
+        }
+
+        if (
+          ballX + ballSize >= fieldWidth - 10 &&
+          ballY + ballSize >= rightPaddleY &&
+          ballY <= rightPaddleY + paddleHeight &&
+          ballX + ballSize <= fieldWidth
+        ) {
+          ballSpeedX = -Math.abs(ballSpeedX);
+          ballX = fieldWidth - 10 - ballSize;
+        }
+
+        if (ballX < 0 || ballX > fieldWidth - ballSize) {
+          if (ballX < 0) {
+            scoreRight++;
+            ballX = 0;
+          } else {
+            scoreLeft++;
+            ballX = fieldWidth - ballSize;
+          }
+          clearInterval(gameInterval);
+          startButton.disabled = false;
+          ballY = fieldHeight / 2 - ballSize / 2;
+          ball.style.left = `${ballX}px`;
+          ball.style.top = `${ballY}px`;
+          updateScore();
+          return;
+        }
+
+        ball.style.left = `${ballX}px`;
+        ball.style.top = `${ballY}px`;
+      }
+
+      function updateScore() {
+        scoreElement.textContent = `${scoreLeft}:${scoreRight}`;
+      }
+
+      function startGame() {
+        startButton.disabled = true;
+        ballX = fieldWidth / 2 - ballSize / 2;
+        ballY = fieldHeight / 2 - ballSize / 2;
+        ball.style.left = `${ballX}px`;
+        ball.style.top = `${ballY}px`;
+        ballSpeedX = Math.random() < 0.5 ? -1 : 1;
+        gameInterval = setInterval(update, 20);
+      }
+
+      function movePaddle(e) {
+        const keyCode = e.keyCode;
+        if (keyCode === 16) { 
+          if (e.type === "keydown") {
+            if (leftPaddleY > 0) {
+              leftPaddleY -= paddleSpeed;
+            }
+          }
+        } else if (keyCode === 17) { 
+          if (e.type === "keydown") {
+            if (leftPaddleY < fieldHeight - paddleHeight) {
+              leftPaddleY += paddleSpeed;
+            }
+          }
+        } else if (keyCode === 38) { 
+          if (e.type === "keydown") {
+            if (rightPaddleY > 0) {
+              rightPaddleY -= paddleSpeed;
+            }
+          }
+        } else if (keyCode === 40) { 
+          if (e.type === "keydown") {
+            if (rightPaddleY < fieldHeight - paddleHeight) {
+              rightPaddleY += paddleSpeed;
+            }
+          }
+        }
+
+        leftPaddle.style.top = `${leftPaddleY}px`;
+        rightPaddle.style.top = `${rightPaddleY}px`;
+      }
+
+      document.addEventListener("keydown", movePaddle);
+      document.addEventListener("keyup", movePaddle);
+      startButton.addEventListener("click", startGame);
+    })
+  </script>
+  </body>
 </html>
