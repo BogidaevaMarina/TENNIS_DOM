@@ -53,8 +53,7 @@
             font-size: 32px;
             flex: 1;
             text-align: center;
-            /*margin-left: -52px;*/
-        }
+          }
 
     </style>
 </head>
@@ -136,10 +135,8 @@
                 }
                 ballSpeedX = 0; 
                 ballSpeedY = 0; 
-                clearInterval(gameInterval);
                 startButton.disabled = false;
-                ballY = fieldHeight / 2 - ballSize / 2;
-                ball.style.left = `${ballX}px`;
+                ballY = Math.min(Math.max(ballY, 0), fieldHeight - ballSize); 
                 ball.style.top = `${ballY}px`;
                 updateScore();
                 return;
@@ -154,18 +151,17 @@
         }
 
         function startGame() {
-    if (!isGameStarted || ballSpeedX === 0 && ballSpeedY === 0) {
-        isGameStarted = true;
-        startButton.disabled = true;
-        if (ballSpeedX === 0 && ballSpeedY === 0) {
-            ballSpeedX = Math.random() < 0.5 ? -1 : 1;
-            ballSpeedY = Math.random() < 0.5 ? -1 : 1;
+            if (!isGameStarted || ballSpeedX === 0 && ballSpeedY === 0) {
+                isGameStarted = true;
+                startButton.disabled = true;
+                if (ballSpeedX === 0 && ballSpeedY === 0) {
+                    ballSpeedX = Math.random() < 0.5 ? -1 : 1;
+                    ballSpeedY = Math.random() < 0.5 ? -1 : 1;
+                }
+                ballX = fieldWidth / 2 - ballSize / 2;
+                ballY = fieldHeight / 2 - ballSize / 2;
+             }
         }
-        ballX = fieldWidth / 2 - ballSize / 2;
-        ballY = fieldHeight / 2 - ballSize / 2;
-        gameInterval = setInterval(update, 20);
-    }
-}
 
         function movePaddle(e) {
             const keyCode = e.keyCode;
@@ -200,6 +196,7 @@
         }
 
         setInterval(updatePaddles, 20);
+        setInterval(update, 20); 
 
         document.addEventListener("keydown", movePaddle);
         document.addEventListener("keyup", stopPaddle);
