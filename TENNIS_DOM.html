@@ -91,13 +91,11 @@
         let rightPaddleY = fieldHeight / 2 - paddleHeight / 2;
         let scoreLeft = 0;
         let scoreRight = 0;
-        let gameInterval;
         let leftPaddleSpeedY = 0;
         let rightPaddleSpeedY = 0;
         let isGameStarted = false;
 
         function update() {
-
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
@@ -195,13 +193,15 @@
             rightPaddle.style.top = `${rightPaddleY}px`;
         }
 
-        setInterval(updatePaddles, 20);
-        setInterval(update, 20); 
+        setInterval(function() {
+            update();
+            updatePaddles();
+        }, 20);
 
         document.addEventListener("keydown", movePaddle);
         document.addEventListener("keyup", stopPaddle);
         startButton.addEventListener("click", startGame);
-    })
+    });
 </script>
 </body>
 </html>
